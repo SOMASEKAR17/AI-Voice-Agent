@@ -1,0 +1,27 @@
+# Pin exact versions once the pipeline is working and tested on the
+# target machine -- pipecat-ai in particular moves fast enough across
+# releases that pinning matters for reproducibility (implementation.md
+# Section 10).
+#
+# pipecat-ai splits most integrations into optional extras rather than
+# installing everything by default -- each extra below corresponds to a
+# component this pipeline actually uses (implementation.md Section 4):
+#   local             -> pyaudio (local mic/speaker I/O via LocalAudioTransport;
+#                         on Windows this installs a prebuilt wheel, no extra
+#                         setup; on macOS you additionally need
+#                         `brew install portaudio` first; on Linux you may need
+#                         `apt install portaudio19-dev` first)
+#   whisper           -> faster-whisper (STT, Section 4.3)
+#   piper             -> piper-tts (TTS, Section 4.5)
+#   local-smart-turn  -> torch/torchaudio/transformers (Smart Turn, Section 4.2 --
+#                         this is a heavy install; expect several hundred MB)
+#
+# Silero VAD (Section 4.1) ships without a separate extra in this version --
+# its dependencies come along with local-smart-turn's torch install.
+pipecat-ai[local,whisper,piper,local-smart-turn]
+websockets
+
+# Only needed by pipeline/health_check.py's audio-device startup check, not
+# by the pipeline itself (that's pyaudio, pulled in via the `local` extra
+# above). Safe to omit if you don't care about that specific check.
+sounddevice

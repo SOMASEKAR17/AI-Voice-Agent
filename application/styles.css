@@ -1,0 +1,413 @@
+/* ---------------------------------------------------------------------
+   Voice Assistant — dark theme
+   Palette (fixed, no additional accent colors introduced):
+     Graphite       #363636  panels / surfaces
+     Jet Black      #242F40  app background
+     Golden Bronze  #CCA43B  the one accent — active state, primary action
+     Alabaster Grey #E5E5E5  secondary text
+     White          #FFFFFF  primary text
+   ------------------------------------------------------------------- */
+
+:root {
+  --graphite: #363636;
+  --jet-black: #242f40;
+  --golden-bronze: #cca43b;
+  --alabaster: #e5e5e5;
+  --white: #ffffff;
+
+  --bg: var(--jet-black);
+  --surface: var(--graphite);
+  --surface-raised: #3d3d3d;
+  --text-primary: var(--white);
+  --text-secondary: var(--alabaster);
+  --text-muted: rgba(229, 229, 229, 0.55);
+  --accent: var(--golden-bronze);
+  --accent-dim: rgba(204, 164, 59, 0.16);
+  --border: rgba(229, 229, 229, 0.1);
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: -apple-system, "Segoe UI", "Inter", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 14px 18px 18px;
+  gap: 18px;
+}
+
+/* ---------- Titlebar ---------- */
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  -webkit-app-region: drag;
+  padding-top: 6px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-mark {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.brand-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.conn-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  -webkit-app-region: no-drag;
+}
+
+.conn-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: background-color 0.25s ease;
+}
+
+.conn-indicator[data-state="connected"] .conn-dot {
+  background: #7fae7f; /* muted, desaturated — informational only, not a themed accent */
+}
+
+.conn-indicator[data-state="disconnected"] .conn-dot,
+.conn-indicator[data-state="crashed"] .conn-dot,
+.conn-indicator[data-state="failed-permanently"] .conn-dot {
+  background: #b06a5a; /* muted terracotta-brown — error, kept desaturated to match theme */
+}
+
+/* ---------- Status panel ---------- */
+
+.status-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 0 6px;
+}
+
+.state-ring {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 40%, var(--surface-raised), var(--surface));
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  position: relative;
+  transition: color 0.4s ease, border-color 0.4s ease;
+}
+
+.state-ring::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  transition: border-color 0.4s ease, opacity 0.4s ease;
+}
+
+.state-ring-inner {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* Listening: calm, quiet pulse in the accent color */
+.state-ring[data-state="listening"] {
+  color: var(--accent);
+  border-color: rgba(204, 164, 59, 0.35);
+}
+.state-ring[data-state="listening"]::before {
+  border-color: rgba(204, 164, 59, 0.25);
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+/* Thinking: dimmer, faster, more clipped pulse */
+.state-ring[data-state="thinking"] {
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+.state-ring[data-state="thinking"]::before {
+  border-color: rgba(229, 229, 229, 0.3);
+  animation: breathe 1.1s ease-in-out infinite;
+}
+
+/* Speaking: solid accent fill, steady (no pulse — it's actively producing output) */
+.state-ring[data-state="speaking"] {
+  color: var(--jet-black);
+  border-color: var(--accent);
+}
+.state-ring[data-state="speaking"] .state-ring-inner {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Interrupted: brief static highlight, settles back to listening */
+.state-ring[data-state="interrupted"] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+/* Audio-level waves: two rings around the mic icon that grow/shrink with
+   live mic input volume, driven by JS (setAudioLevel in app.js) rather than
+   a CSS keyframe, since the scale is data-driven per incoming audio_level
+   message rather than a fixed loop. Uses the same accent color as the rest
+   of the theme -- no new colors introduced. */
+.mic-wave {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.09s linear, opacity 0.09s linear;
+  pointer-events: none;
+}
+
+/* Waves are only meaningful while the mic is actually live -- hide them
+   when muted or when speaking (assistant audio isn't mic input) so they
+   don't imply the assistant's own voice is being picked up as input. */
+.state-ring[data-muted="true"] .mic-wave,
+.state-ring[data-state="speaking"] .mic-wave {
+  opacity: 0 !important;
+}
+
+.state-text {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.state-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- Transcript ---------- */
+
+.transcript-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.transcript-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 14px 18px 8px;
+}
+
+.transcript {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.transcript::-webkit-scrollbar {
+  width: 6px;
+}
+.transcript::-webkit-scrollbar-thumb {
+  background: rgba(229, 229, 229, 0.15);
+  border-radius: 3px;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 24px 4px;
+  text-align: center;
+}
+
+.line {
+  max-width: 84%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  line-height: 1.45;
+  animation: rise 0.2s ease;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.line.user {
+  align-self: flex-end;
+  background: var(--accent-dim);
+  color: var(--text-primary);
+  border: 1px solid rgba(204, 164, 59, 0.3);
+  border-bottom-right-radius: 4px;
+}
+
+.line.assistant {
+  align-self: flex-start;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.line.partial {
+  opacity: 0.65;
+  font-style: italic;
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+.ctrl-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.ctrl-btn:hover {
+  background: var(--surface-raised);
+  border-color: rgba(229, 229, 229, 0.2);
+}
+
+.ctrl-btn:active {
+  transform: scale(0.98);
+}
+
+.ctrl-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--jet-black);
+}
+
+.ctrl-btn-primary:hover {
+  background: #d9b355;
+  border-color: #d9b355;
+}
+
+.ctrl-btn-primary[data-muted="true"] {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ctrl-btn-primary[data-muted="true"]:hover {
+  background: var(--accent-dim);
+}
+
+.ctrl-btn svg {
+  flex-shrink: 0;
+}
+
+.ctrl-select {
+  flex: 2;
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0 12px;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  height: 44px; /* match button height */
+  appearance: none;
+  -webkit-appearance: none;
+}
+.ctrl-select:hover {
+  background: var(--surface-raised);
+}
+.ctrl-select option {
+  background: var(--jet-black);
+}
+
+/* ---------- Audio Meter ---------- */
+.audio-meter {
+  width: 120px;
+  height: 4px;
+  background: var(--surface-raised);
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.audio-meter-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}

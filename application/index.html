@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'" />
+  <title>Voice Assistant</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="titlebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Voice Assistant</span>
+      </div>
+      <div class="conn-indicator" id="conn-indicator" data-state="connecting">
+        <span class="conn-dot"></span>
+        <span class="conn-label" id="conn-label">Connecting</span>
+      </div>
+    </header>
+
+    <section class="status-panel">
+      <div class="state-ring" id="state-ring" data-state="listening">
+        <div class="mic-wave mic-wave-2" id="mic-wave-2" aria-hidden="true"></div>
+        <div class="mic-wave mic-wave-1" id="mic-wave-1" aria-hidden="true"></div>
+        <div class="state-ring-inner">
+          <svg id="state-icon" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
+            <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" fill="currentColor"/>
+            <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.93V21H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-3.07A7 7 0 0 0 19 11z" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+      <div class="state-text" id="status">Listening</div>
+      <div class="state-sub" id="status-sub">Speak naturally, anytime</div>
+      <div class="audio-meter" aria-hidden="true" title="Audio level">
+        <div class="audio-meter-fill" id="audio-meter-fill"></div>
+      </div>
+    </section>
+
+    <section class="transcript-wrap">
+      <div class="transcript-label">Conversation</div>
+      <div class="transcript" id="transcript">
+        <div class="empty-state" id="empty-state">
+          Your conversation will appear here once you start speaking.
+        </div>
+      </div>
+    </section>
+
+    <footer class="controls">
+      <button class="ctrl-btn" id="restart-btn" title="Restart conversation">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-4.9 6H4.08A7 7 0 1 0 12 5z" fill="currentColor"/>
+        </svg>
+        <span>Restart</span>
+      </button>
+      <select id="mic-select" class="ctrl-select" title="Microphone Input"></select>
+      <button class="ctrl-btn ctrl-btn-primary" id="mute-btn" data-muted="false" title="Mute microphone">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" fill="currentColor"/>
+          <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.93V21H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-3.07A7 7 0 0 0 19 11z" fill="currentColor"/>
+        </svg>
+        <span id="mute-label">Mute</span>
+      </button>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

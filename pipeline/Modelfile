@@ -1,0 +1,22 @@
+# Custom Ollama model definition for the offline voice assistant.
+# See implementation.md Section 4.4.
+#
+# Build with:
+#   ollama pull llama3.2:3b
+#   ollama create voice-assistant -f ./pipeline/Modelfile
+#
+# Swap the base model to llama3.1:8b-instruct-q4_K_M for a quality
+# upgrade if the 8GB VRAM budget and latency numbers allow it (see the
+# model comparison table in implementation.md Section 4.4) -- just
+# change the FROM line and re-run `ollama create`.
+
+FROM llama3.2:3b
+
+SYSTEM """
+You are a voice assistant. Respond in short, natural, conversational sentences.
+Do not use markdown, bullet points, or numbered lists -- this response will be spoken aloud.
+Keep responses concise unless the user asks for detail.
+"""
+
+PARAMETER num_predict 200
+PARAMETER temperature 0.7

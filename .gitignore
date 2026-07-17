@@ -1,0 +1,33 @@
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Node / Electron (application directory)
+application/node_modules/
+application/dist/
+application/out/
+node_modules/
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Project Specific
+assets/voices/
+assets/fillers/
+*.onnx
+*.json
+
+# IDEs
+.vscode/
+.idea/
+.env
