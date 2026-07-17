@@ -5,6 +5,17 @@ desktop interface. Full design rationale, component-by-component reasoning, and
 the acceptance criteria this build targets live in [`implementation.md`](implementation.md) —
 this README is just the "how do I run it" quick start.
 
+## Table of Contents
+
+- [What's in this repo](#what's-in-this-repo)
+- [Theme](#theme)
+- [Prerequisites (target hardware assumptions from implementation.md Section 3)](#prerequisites-target-hardware-assumptions-from-implementationmd-section-3)
+- [Setup](#setup)
+- [Running](#running)
+- [Configuration](#configuration)
+- [Packaging](#packaging)
+- [Known gaps / where to look next](#known-gaps--where-to-look-next)
+
 ## What's in this repo
 
 ```
@@ -25,7 +36,7 @@ xibotix/
 │   ├── config.py           # single source of truth for every tunable parameter (Section 11)
 │   ├── Modelfile            # custom Ollama model definition (Section 4.4)
 │   └── requirements.txt
-├── assets/
+├── assets/               # static assets (see [assets/README.md](assets/README.md))
 │   └── fillers/tier1/, tier2/   # generated filler .wav clips land here (empty until generated)
 └── implementation.md       # full design document (architecture, rationale, testing plan, risks)
 ```
